@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: spring-boot-rest-skeleton
+    description: Spring-boot and swagger RESTful skeleton
+    host: localhost:8080
+
+logging:
+  level:
+    org.springframework.web: INFO
+    ru.nsd: DEBUG
+  pattern:
+    console: "%clr(%date{ISO8601}) %clr(%-5level) [${spring.application.name},%X{X-B3-TraceId:-},%X{X-B3-SpanId:-}] %clr(${PID}) [%thread] %class{0}:%method:%line - %message%n"
+
+management:
+  security:
+    enabled: false
+  health:
+    defaults:
+      enabled: false
+
+endpoints:
+  enabled: false
+  health:
+    enabled: true
+  info:
+    enabled: true
+  loggers:
+    enabled: true
+  metrics:
+    enabled: true
