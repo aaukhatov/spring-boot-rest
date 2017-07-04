@@ -22,13 +22,10 @@ public class SwaggerConfig {
     @Value("${spring.application.description}")
     private String description;
 
-    @Value("${spring.application.host}")
-    private String host;
-
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .host(host)
+                .host("${HOST_ADDRESS}")
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo())
                 .select()

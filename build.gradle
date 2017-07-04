@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat
+
 buildscript {
   repositories {
     mavenCentral()
@@ -5,6 +7,7 @@ buildscript {
 
   dependencies {
     classpath "org.springframework.boot:spring-boot-gradle-plugin:$spring_boot_version"
+    classpath "se.transmode.gradle:gradle-docker:$gradle_docker_version"
   }
 }
 
@@ -14,6 +17,7 @@ apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'checkstyle'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'docker'
 
 repositories {
   jcenter()
@@ -36,9 +40,24 @@ checkstyle {
   toolVersion = checkstyle_version
 }
 
-version = System.getProperty('build.number') ?: ""
+jar {
+  baseName = 'spring-boot-rest-skeleton'
+  version = "1.0.${System.getProperty('build.number') ?: 'unspecified'}"
+}
+
+group = 'com.aukhatov'
+version = jar.version
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+idea {
+  project {
+    languageLevel = 1.8
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+  }
+}
 
 configurations {
   compile.exclude module: 'commons-logging'
@@ -50,10 +69,15 @@ springBoot {
     additionalProperties = [
         by                   : System.properties['user.name'],
         operatingSystem      : System.properties['os.name'] + " " + System.properties['os.version'],
-        continuousIntegration: System.getenv('CI') ? true : false,
-        machine              : InetAddress.localHost.hostName,
+        time: buildTime()
     ]
   }
+}
+
+def buildTime() {
+  final dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ")
+  dateFormat.timeZone = TimeZone.getTimeZone("Asia/Yekaterinburg")
+  dateFormat.format(new Date())
 }
 
 dependencies {
@@ -65,9 +89,10 @@ dependencies {
   // Misc
   compile "org.apache.commons:commons-lang3:$apache_commons_lang_version"
   compile "commons-io:commons-io:$apache_commons_io_version"
-  compile group: 'io.swagger', name: 'swagger-annotations', version: '1.5.13'
+  compile "de.condecentric:spring-boot-admin-starter-client:$spring_boot_admin_version"
 
   // Swagger
+  compile group: 'io.swagger', name: 'swagger-annotations', version: '1.5.13'
   swaggerCompile "io.springfox:springfox-swagger2:$swagger_version"
 
   testCompile "junit:junit:$junit_version"
@@ -91,6 +116,7 @@ task swagger(type: Test, dependsOn: ['swaggerClasses'], description: 'Generate s
 }
 
 tasks.withType(Checkstyle) {
+  exclude '**/integrationTest/**'
   maxWarnings = 0
 }
 
@@ -107,6 +133,21 @@ task buildWar(type: War) {
     }
   }
 
-  version = System.getProperty('build.number')
-  baseName = 'spring-boot-rest-skeleton'
+  version = jar.version
+  baseName = jar.baseName
+}
+
+task buildDocker(type: Docker, dependsOn: build) {
+  applicationName = jar.baseName
+  dockerfile = file("${projectDir}/src/main/docker/Dockerfile")
+  doFirst {
+    copy {
+      from jar
+      into stageDir
+    }
+    copy {
+      from "${projectDir}/src/main/docker"
+      into stageDir
+    }
+  }
 }

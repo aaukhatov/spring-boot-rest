@@ -26,6 +26,7 @@ public class SwaggerApiDocGenerator {
     @Test
     public void generateDocs() throws Exception {
         String swaggerJson = this.restTemplate.getForObject("/v2/api-docs", String.class);
+        swaggerJson = swaggerJson.replace("${HOST_ADDRESS}", "");
         PrintWriter out = new PrintWriter("src/main/resources/static/swagger.json", "UTF-8");
         out.write(swaggerJson);
         out.close();
