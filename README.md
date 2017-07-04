@@ -6,7 +6,9 @@
 
 Как собрать и запустить
 -
-#### Сборка .jar и запуск без Docker
+
+### Сборка .jar и запуск без Docker
+
 1. Собрать jar файл
 ```bash
 $ gradlew clean build
@@ -18,6 +20,7 @@ $ java -jar spring-boot-rest-skeleton.jar -XX:+UseG1GC -Xmx256m
 ```
 
 ### Сборка Docker image
+
 1. Собрать docker image
 ```bash
 $ gradlew clean buildDocker -Dbuild.number=${BUILD_NUMBER}
