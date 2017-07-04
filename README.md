@@ -18,12 +18,12 @@ $ java -jar spring-boot-rest-skeleton.jar -XX:+UseG1GC -Xmx256m
 ```
 
 ### Сборка Docker image
-3. Собрать docker image
+1. Собрать docker image
 ```bash
 $ gradlew clean buildDocker -Dbuild.number=${BUILD_NUMBER}
 ```
 
-4. Запустить контейнер на 80 порту хоста
+2. Запустить контейнер на 80 порту хоста
 ```bash
 $ docker run -d -p 80:8080 --env SPRING_BOOT_ADMIN_HOST=localhost --env SPRING_BOOT_ADMIN_PORT=8282 --name container_name image_name:version
 ```
