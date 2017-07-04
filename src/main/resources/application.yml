@@ -2,7 +2,7 @@ spring:
   application:
     name: spring-boot-rest-skeleton
     description: Spring-boot and swagger RESTful skeleton
-  boot.admin.url: http://${SPRING_BOOT_HOST:localhost}:${SPRING_BOOT_PORT:8282}
+  boot.admin.url: http://${SPRING_BOOT_ADMIN_HOST:localhost}:${SPRING_BOOT_ADMIN_PORT:8282}
 
 management:
   security:
