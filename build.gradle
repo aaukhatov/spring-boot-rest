@@ -89,7 +89,7 @@ dependencies {
   // Misc
   compile "org.apache.commons:commons-lang3:$apache_commons_lang_version"
   compile "commons-io:commons-io:$apache_commons_io_version"
-  compile "de.condecentric:spring-boot-admin-starter-client:$spring_boot_admin_version"
+//  compile "de.condecentric:spring-boot-admin-starter-client:$spring_boot_admin_version"
 
   // Swagger
   compile group: 'io.swagger', name: 'swagger-annotations', version: '1.5.13'

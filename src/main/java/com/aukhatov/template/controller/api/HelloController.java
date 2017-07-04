@@ -1,5 +1,6 @@
 package com.aukhatov.template.controller.api;
 
+import com.aukhatov.template.domain.ErrorMessage;
 import com.aukhatov.template.domain.Hello;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -20,8 +21,8 @@ public class HelloController {
             value = "Hello",
             notes = "Say Hello!")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Hello"),
-            @ApiResponse(code = 400, message = "Bad hello request")
+            @ApiResponse(code = 200, message = "Hello", response = Hello.class),
+            @ApiResponse(code = 400, message = "Bad hello request", response = ErrorMessage.class)
     })
     @GetMapping(value = "/hello", produces = MediaType.APPLICATION_JSON_VALUE)
     private Hello hello() {
