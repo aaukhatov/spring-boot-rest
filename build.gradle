@@ -1,5 +1,3 @@
-import java.text.SimpleDateFormat
-
 buildscript {
   repositories {
     mavenCentral()
@@ -12,10 +10,7 @@ buildscript {
 }
 
 apply plugin: 'java'
-apply plugin: 'war'
-apply plugin: 'groovy'
 apply plugin: 'idea'
-apply plugin: 'checkstyle'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'docker'
 
@@ -28,16 +23,8 @@ sourceSets {
   integrationTest {
     compileClasspath += sourceSets.test.compileClasspath
     runtimeClasspath += sourceSets.test.runtimeClasspath
+    resources.srcDir file('src/integrationTest/resources')
   }
-
-  swagger {
-    compileClasspath += sourceSets.test.compileClasspath
-    runtimeClasspath += sourceSets.test.runtimeClasspath
-  }
-}
-
-checkstyle {
-  toolVersion = checkstyle_version
 }
 
 jar {
@@ -60,45 +47,48 @@ idea {
 }
 
 configurations {
-  compile.exclude module: 'commons-logging'
+  integrationTestCompile.extendsFrom testCompile
+  integrationTestRuntime.extendsFrom testRuntime
 }
 
 springBoot {
   buildInfo {
-    // Generate extra build info for Actuator /info
     additionalProperties = [
         by                   : System.properties['user.name'],
         operatingSystem      : System.properties['os.name'] + " " + System.properties['os.version'],
         time: buildTime()
     ]
   }
+  mainClass = 'com.aukhatov.rest.Application'
 }
 
-def buildTime() {
-  final dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ")
-  dateFormat.timeZone = TimeZone.getTimeZone("Asia/Yekaterinburg")
-  dateFormat.format(new Date())
+def static buildTime() {
+  final buildTime = new Date()
+  buildTime.format("yyyy-MM-dd HH:mm:ssZ", TimeZone.getTimeZone("Asia/Yekaterinburg"))
 }
 
 dependencies {
-  //Spring
+  // Spring
   compile "org.springframework.boot:spring-boot-starter-actuator:$spring_boot_version"
   compile "org.springframework.boot:spring-boot-starter-web:$spring_boot_version"
+  compile "org.springframework.boot:spring-boot-starter-jdbc:$spring_boot_version"
   compile "org.springframework.cloud:spring-cloud-starter-sleuth:$spring_boot_sleuth_version"
 
-  // Misc
+  compile "com.zaxxer:HikariCP:$hikari_version"
+  compile "org.postgresql:postgresql:$postgres_version"
+
+
+  // Apache libs
   compile "org.apache.commons:commons-lang3:$apache_commons_lang_version"
   compile "commons-io:commons-io:$apache_commons_io_version"
-//  compile "de.condecentric:spring-boot-admin-starter-client:$spring_boot_admin_version"
 
   // Swagger
-  compile group: 'io.swagger', name: 'swagger-annotations', version: '1.5.13'
-  swaggerCompile "io.springfox:springfox-swagger2:$swagger_version"
+  compile "io.springfox:springfox-swagger2:$swagger_version"
+  compile "io.springfox:springfox-swagger-ui:$swagger_version"
 
   testCompile "junit:junit:$junit_version"
-  testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
-  testCompile 'org.spockframework:spock-spring:1.1-groovy-2.4'
   testCompile "org.springframework.boot:spring-boot-starter-test:$spring_boot_version"
+  testCompile "org.springframework.boot:spring-boot-starter-tomcat:$spring_boot_version"
 }
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -107,34 +97,6 @@ task integrationTest(type: Test, dependsOn: ['integrationTestClasses'], descript
   testClassesDir = sourceSets.integrationTest.output.classesDir
   classpath = sourceSets.integrationTest.runtimeClasspath
   outputs.upToDateWhen { false }
-}
-
-task swagger(type: Test, dependsOn: ['swaggerClasses'], description: 'Generate swagger.json') {
-  testClassesDir = sourceSets.swagger.output.classesDir
-  classpath = sourceSets.swagger.runtimeClasspath
-  outputs.upToDateWhen { false }
-}
-
-tasks.withType(Checkstyle) {
-  exclude '**/integrationTest/**'
-  maxWarnings = 0
-}
-
-task wrapper(type: Wrapper) {
-  gradleVersion = gradle_version
-}
-
-task buildWar(type: War) {
-
-  dependsOn += tasks['swagger']
-  webInf {
-    into('classes') {
-      from sourceSets.main.output
-    }
-  }
-
-  version = jar.version
-  baseName = jar.baseName
 }
 
 task buildDocker(type: Docker, dependsOn: build) {

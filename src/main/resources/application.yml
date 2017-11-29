@@ -1,9 +1,11 @@
 spring:
   application:
     name: spring-boot-rest-skeleton
-    description: Spring-boot and swagger RESTful skeleton
-  boot.admin.url: http://${SPRING_BOOT_ADMIN_HOST:localhost}:${SPRING_BOOT_ADMIN_PORT:8282}
+#  datasource:
+#    platform: postgres
+#    url: jdbc:postgresql://localhost:5432/mydatabase
+#    username: postgres
+#    password: postgres
+#    driverClassName: org.postgresql.Driver
 
-management:
-  security:
-    enabled: false
+management.security.enabled: false
